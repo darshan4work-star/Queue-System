@@ -1,0 +1,361 @@
+.loginContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: var(--background);
+    padding: 1rem;
+}
+
+.loginCard {
+    background: var(--surface);
+    padding: 2.5rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    border: 1px solid var(--border);
+}
+
+.loginCard h1 {
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+}
+
+.form {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.input {
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 1rem;
+}
+
+.button {
+    padding: 0.75rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+/* Dashboard */
+.dashboard {
+    min-height: 100vh;
+    background-color: var(--background);
+    padding: 1.5rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.statusBadge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.controlPanel {
+    background: var(--surface);
+    padding: 2rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    text-align: center;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border);
+}
+
+.label {
+    color: var(--text-muted);
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.tokenDisplay {
+    font-size: 5rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin: 1rem 0;
+    line-height: 1;
+}
+
+.actions {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.actionBtn {
+    padding: 1rem;
+    border: none;
+    border-radius: var(--radius);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.btnNext {
+    background: var(--primary);
+    color: white;
+}
+
+.btnSkip {
+    background: var(--background);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.statCard {
+    background: var(--surface);
+    padding: 1rem;
+    border-radius: var(--radius);
+    text-align: center;
+    border: 1px solid var(--border);
+}
+
+.statCard h4 {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.statValue {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.messageSection {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    text-align: left;
+}
+
+.messageSection label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.messageInputGroup {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.msgBtn {
+    background: #4f46e5;
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* Updated Layout */
+.queueContainer {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+@media (max-width: 768px) {
+    .queueContainer {
+        flex-direction: column;
+    }
+}
+
+.nowServingCard {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    flex: 1.2;
+    text-align: center;
+    border: 2px solid #3b82f6;
+}
+
+.rightPanel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.currentDisplay {
+    margin-bottom: 1.5rem;
+}
+
+.userDetails {
+    margin-top: 1rem;
+    background: #eff6ff;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: left;
+    font-size: 0.95rem;
+    border: 1px solid #dbeafe;
+}
+
+.userDetails h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    color: #1e40af;
+    border-bottom: 1px solid #bfdbfe;
+    padding-bottom: 0.5rem;
+}
+
+.detailRow {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+    color: #374151;
+}
+
+.waitingCheckList {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.waitingCheckList h3 {
+    margin-top: 0;
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+}
+
+.tokenBadge {
+    background: #ecfdf5;
+    color: #059669;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.actionGroup {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.iconBtn {
+    background: none;
+    border: 1px solid transparent;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0.3rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+    line-height: 1;
+}
+
+.iconBtn:hover {
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+}
+
+.emptyState {
+    text-align: center;
+    color: #9ca3af;
+    padding: 2rem;
+    font-style: italic;
+    background: #f9fafb;
+    border-radius: 6px;
+}
+
+/* Modal Styles */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.modalContent h3 {
+    margin-top: 0;
+}
+
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.formGroup {
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+.formGroup label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-size: 0.9rem;
+    color: #555;
+    text-transform: capitalize;
+}
+
+.tableContainer {
+    overflow-x: auto;
+}
+
+.queueTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+}
+
+.queueTable th,
+.queueTable td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.queueTable th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}

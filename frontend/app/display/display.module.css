@@ -1,0 +1,142 @@
+.displayContainer {
+    height: 100vh;
+    background-color: #000;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.header {
+    height: 10vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4rem;
+    background: #111;
+    border-bottom: 2px solid #333;
+}
+
+.logoArea {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent, #f59e0b);
+}
+
+.clock {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #ccc;
+}
+
+.content {
+    flex: 1;
+    display: flex;
+}
+
+.mainDisplay {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-right: 2px solid #333;
+    background: radial-gradient(circle, #222, #000);
+}
+
+.label {
+    font-size: 3rem;
+    color: #aaa;
+    margin-bottom: 2rem;
+    letter-spacing: 0.1em;
+}
+
+.tokenBig {
+    font-size: 20rem;
+    font-weight: 800;
+    color: var(--success, #10b981);
+    line-height: 1;
+    text-shadow: 0 0 50px rgba(16, 185, 129, 0.3);
+    animation: pulse 2s infinite;
+}
+
+.sidePanel {
+    flex: 1;
+    background: #111;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+}
+
+.nextLabel {
+    font-size: 1.5rem;
+    color: var(--primary, #2563eb);
+    margin-bottom: 2rem;
+    text-align: center;
+    font-weight: 700;
+    border-bottom: 1px solid #333;
+    padding-bottom: 1rem;
+}
+
+.nextList {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.nextToken {
+    font-size: 4rem;
+    font-weight: 700;
+    color: #fff;
+    background: #222;
+    padding: 0.5rem 2rem;
+    border-radius: 1rem;
+    width: 100%;
+    text-align: center;
+}
+
+.footer {
+    height: 8vh;
+    background: #2563eb;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.scrollingText {
+    white-space: nowrap;
+    font-size: 2rem;
+    font-weight: 600;
+    padding-left: 100%;
+    animation: scroll 20s linear infinite;
+    color: white;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        text-shadow: 0 0 50px rgba(16, 185, 129, 0.3);
+    }
+
+    50% {
+        transform: scale(1.02);
+        text-shadow: 0 0 80px rgba(16, 185, 129, 0.5);
+    }
+
+    100% {
+        transform: scale(1);
+        text-shadow: 0 0 50px rgba(16, 185, 129, 0.3);
+    }
+}
+
+@keyframes scroll {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
+}
