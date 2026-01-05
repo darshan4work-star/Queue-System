@@ -12,17 +12,19 @@ class TokenService {
                 [vendorId, todayStart]
             );
 
-            // CHECK FOR DUPLICATE ACTIVE TOKEN
-            const existingToken = await pool.query(
-                `SELECT * FROM tokens 
-                 WHERE vendor_id = $1 AND user_phone_number = $2 AND created_at >= $3 
-                 AND status IN ('PENDING', 'SERVING')
-                 ORDER BY created_at DESC LIMIT 1`,
-                [vendorId, userPhone, todayStart]
-            );
+            // CHECK FOR DUPLICATE ACTIVE TOKEN (Only if phone is provided)
+            if (userPhone) {
+                const existingToken = await pool.query(
+                    `SELECT * FROM tokens 
+                     WHERE vendor_id = $1 AND user_phone_number = $2 AND created_at >= $3 
+                     AND status IN ('PENDING', 'SERVING')
+                     ORDER BY created_at DESC LIMIT 1`,
+                    [vendorId, userPhone, todayStart]
+                );
 
-            if (existingToken.rows.length > 0) {
-                return existingToken.rows[0];
+                if (existingToken.rows.length > 0) {
+                    return existingToken.rows[0];
+                }
             }
 
             const currentCount = parseInt(countRes.rows[0].count, 10);

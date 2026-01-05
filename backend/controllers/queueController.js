@@ -4,9 +4,9 @@ const { pool } = require('../config/db'); // Direct pool access for auth check
 // Generate Token (Public)
 const createTokenWebhook = async (req, res) => {
     try {
-        const { shop_id, user_phone } = req.body;
+        const { shop_id, user_phone, skip_form, is_guest } = req.body;
 
-        if (!shop_id || !user_phone) {
+        if (!shop_id || (!user_phone && !is_guest)) {
             return res.status(400).json({ error: "Shop ID and Phone required" });
         }
 
@@ -22,7 +22,12 @@ const createTokenWebhook = async (req, res) => {
         const formRes = await pool.query("SELECT fields FROM vendor_forms WHERE vendor_id = $1 AND is_active = TRUE", [vendorId]);
         const hasForm = formRes.rows.length > 0 && formRes.rows[0].fields.length > 0;
 
-        if (hasForm) {
+        // Skip form if guest OR explicitly skipped
+        if (hasForm && !skip_form && !is_guest) {
+            // Check if customer exists
+            const customerRes = await pool.query("SELECT id FROM vendor_customers WHERE vendor_id = $1 AND phone_number = $2", [vendorId, user_phone]);
+            const isExistingCustomer = customerRes.rows.length > 0;
+
             if (!isExistingCustomer) {
                 // New Customer: Return empty form
                 return res.json({
@@ -45,7 +50,9 @@ const createTokenWebhook = async (req, res) => {
         }
 
         // Create Token
-        const token = await TokenService.createToken(vendorId, user_phone);
+        // Use provided phone OR null if guest
+        const phoneToSave = is_guest ? null : user_phone;
+        const token = await TokenService.createToken(vendorId, phoneToSave);
 
         // Emit Update
         const queueStatus = await TokenService.getQueueStatus(vendorId);

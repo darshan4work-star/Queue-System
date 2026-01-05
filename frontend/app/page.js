@@ -1,116 +1,147 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { socket } from './socket'; // Direct import since it's same dir level in app maybe? No, socket.js is in app/
+import { socket } from './socket';
+import Navbar from '../components/Landing/Navbar';
+import Hero from '../components/Landing/Hero';
+import Features from '../components/Landing/Features';
+import Contact from '../components/Landing/Contact';
 import styles from './page.module.css';
 
 export default function Home() {
-  const [phone, setPhone] = useState('');
-  const [myToken, setMyToken] = useState(null);
-  const [shopId, setShopId] = useState('store1'); // Default for MVP
-  const [queueStatus, setQueueStatus] = useState({ serving: '--', waiting: 0 });
-  const [mode, setMode] = useState('LANDING'); // LANDING, TOKEN_VIEW
+  // Create Queue State
+  const [newVendor, setNewVendor] = useState({ name: '', phone: '', email: '', password: '', shop_id: '', business_type: 'custom' });
+  const [creating, setCreating] = useState(false);
+  const [createdVendor, setCreatedVendor] = useState(null);
 
   useEffect(() => {
     if (!socket.connected) {
       socket.connect();
     }
-    socket.emit('join_shop', shopId);
+  }, []);
 
-    socket.on('queue_update', (data) => {
-      setQueueStatus(prev => ({
-        ...prev,
-        serving: data.serving,
-        waiting: data.waiting
-      }));
-    });
-
-    return () => {
-      socket.off('queue_update');
-    };
-  }, [shopId]);
-
-  const handleGetToken = async () => {
-    if (!phone) return alert("Please enter phone number");
-
+  const handleInstantCreate = async (e) => {
+    e.preventDefault();
+    setCreating(true);
     try {
-      const res = await fetch('http://localhost:5000/api/webhook/missed-call', {
+      const res = await fetch('http://localhost:5000/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // Using default store1 since public user doesn't know ID in this simple UI
         body: JSON.stringify({
-          shop_id: shopId,
-          user_phone: phone
+          name: newVendor.name,
+          is_instant: true
         })
       });
       const data = await res.json();
       if (data.success) {
-        setMyToken(data.token);
-        setMode('TOKEN_VIEW');
-        setQueueStatus({
-          serving: data.queueStatus.serving,
-          waiting: data.queueStatus.waiting
-        });
+        setCreatedVendor(data.vendor);
+      } else {
+        alert(data.error || "Failed to create queue");
       }
-    } catch (err) {
-      console.error(err);
-      alert("Failed to get token");
+    } catch (e) {
+      console.error(e);
+      alert("Error creating queue");
+    } finally {
+      setCreating(false);
     }
   };
 
-  return (
-    <main className={styles.main}>
-      <header className={styles.header}>
-        <h1>QueueStatus</h1>
-        <p>Digital Token System</p>
-      </header>
+  // The Form Component to pass to Hero
+  const createQueueForm = (
+    !createdVendor ? (
+      <form onSubmit={handleInstantCreate} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>Get Started</h3>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+          Create your queue instantly. No account required.
+        </p>
 
-      {mode === 'LANDING' ? (
-        <div className={styles.card}>
-          <h2>Join the Queue</h2>
-          <div className={styles.inputGroup}>
-            <input
-              type="tel"
-              placeholder="Enter Phone Number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className={styles.input}
-            />
-            <button className={styles.button} onClick={handleGetToken}>Get Token</button>
-          </div>
-          <p style={{ marginTop: '1rem', fontSize: '0.8rem', color: '#666' }}>
-            Enter your number to generate a token instantly.
-          </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <label style={{ fontSize: '0.9rem', fontWeight: '500', color: 'var(--text-secondary)' }}>Queue Name</label>
+          <input
+            type="text"
+            placeholder="e.g. Dr. Smith Clinic"
+            required
+            style={{
+              padding: '1rem',
+              borderRadius: '9999px',
+              border: '1px solid var(--border)',
+              background: 'rgba(255,255,255,0.05)',
+              color: 'white',
+              fontSize: '1rem',
+              outline: 'none'
+            }}
+            value={newVendor.name}
+            onChange={e => setNewVendor({ ...newVendor, name: e.target.value })}
+          />
         </div>
-      ) : (
-        <div className={styles.card} style={{ backgroundColor: '#f0fdf4', borderColor: '#bbf7d0' }}>
-          <h2>Your Token</h2>
-          <div className={styles.bigNumber} style={{ fontSize: '3.5rem', margin: '1rem 0' }}>
-            {myToken?.token_number || 'A--'}
-          </div>
-          <p style={{ marginBottom: '1rem', color: '#166534' }}>
-            Please wait for your turn.
-          </p>
-          <button
-            className={styles.button}
-            style={{ backgroundColor: 'transparent', color: '#666', border: '1px solid #ddd' }}
-            onClick={() => { setMode('LANDING'); setPhone(''); setMyToken(null); }}
-          >
-            Get Another Token
-          </button>
-        </div>
-      )}
 
-      <div className={styles.statusGrid}>
-        <div className={styles.statusCard}>
-          <h3>Now Serving</h3>
-          <div className={styles.bigNumber}>{queueStatus.serving}</div>
+        <button
+          disabled={creating}
+          style={{
+            backgroundColor: 'var(--accent)',
+            color: 'white',
+            padding: '1rem',
+            borderRadius: '9999px',
+            fontWeight: 'bold',
+            fontSize: '1rem',
+            border: 'none',
+            cursor: creating ? 'wait' : 'pointer',
+            transition: 'background 0.2s'
+          }}
+        >
+          {creating ? 'Creating...' : 'Create Queue'}
+        </button>
+
+        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
+          By clicking create, you agree to our Terms.
+        </p>
+      </form>
+    ) : (
+      <div style={{ textAlign: 'left' }}>
+        <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(16, 185, 129, 0.3)', marginBottom: '1.5rem' }}>
+          <h3 style={{ color: '#34d399', marginTop: 0, fontSize: '1.5rem' }}>Queue Created!</h3>
+          <p style={{ marginBottom: '1rem' }}><strong>Shop ID:</strong> <span style={{ color: 'white' }}>{createdVendor.shop_id}</span></p>
+
+          <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
+            <p style={{ margin: '5px 0', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Admin Credentials:</p>
+            <p style={{ margin: '0', fontSize: '0.95rem' }}>Email: <code style={{ color: '#fff' }}>{createdVendor.email}</code></p>
+            <p style={{ margin: '0', fontSize: '0.95rem' }}>Pass: <code style={{ color: '#fff' }}>{createdVendor.generated_password}</code></p>
+          </div>
         </div>
-        <div className={styles.statusCard}>
-          <h3>Waiting</h3>
-          <div className={styles.number}>{queueStatus.waiting}</div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <a href="/vendor" target="_blank" style={{ background: 'var(--accent)', color: 'white', padding: '1rem', borderRadius: '12px', textAlign: 'center', fontWeight: 'bold' }}>
+            Open Vendor Panel
+          </a>
+          <a href={`/display/${createdVendor.shop_id}`} target="_blank" style={{ background: 'transparent', color: 'white', border: '1px solid var(--border)', padding: '1rem', borderRadius: '12px', textAlign: 'center' }}>
+            Open Display Panel
+          </a>
+          <a href={`/book/${createdVendor.shop_id}`} target="_blank" style={{ background: 'transparent', color: 'white', border: '1px solid var(--border)', padding: '1rem', borderRadius: '12px', textAlign: 'center' }}>
+            Open Booking Panel
+          </a>
         </div>
       </div>
+    )
+  );
 
+  return (
+    <main style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
+      <Navbar />
+      <Hero createForm={createQueueForm} />
+      <Features />
+
+      {/* Our Story Section */}
+      <section id="story" style={{ padding: '6rem 2rem' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '2rem' }}>Our Story</h2>
+          <p style={{ fontSize: '1.2rem', lineHeight: 1.8, color: 'var(--text-secondary)' }}>
+            We believe time is the most valuable currency. In a post-pandemic world, waiting in crowded lines isn't just inefficient—it's unsafe.
+            QueueNow was born from a simple idea: <strong>Wait where you want.</strong>
+            By digitizing the queue, we give freedom back to your customers and control back to your business.
+          </p>
+        </div>
+      </section>
+
+      <Contact />
     </main>
   );
 }

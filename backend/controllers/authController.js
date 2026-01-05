@@ -15,6 +15,8 @@ const vendorLogin = async (req, res) => {
             return res.status(401).json({ error: "Invalid Credentials" });
         }
 
+        // Vendor Login
+        // Return can_customize flag
         const vendor = result.rows[0];
 
         // Simple password check (In production, use bcrypt)
@@ -28,7 +30,8 @@ const vendorLogin = async (req, res) => {
                 id: vendor.id,
                 shop_id: vendor.shop_id,
                 name: vendor.name,
-                email: vendor.email
+                email: vendor.email,
+                can_customize: vendor.can_customize // Add this line
             }
         });
 
@@ -41,7 +44,22 @@ const vendorLogin = async (req, res) => {
 // Super Admin Create Vendor
 const createVendor = async (req, res) => {
     try {
-        const { name, phone, email, password, shop_id, business_type } = req.body;
+        let { name, phone, email, password, shop_id, business_type, can_customize, is_instant } = req.body;
+
+        if (is_instant) {
+            // Auto-generate fields for Instant Creation
+            const suffix = Math.floor(1000 + Math.random() * 9000); // 4 digit random
+            // Slugify name for shop_id
+            const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+            shop_id = `${slug}${suffix}`;
+
+            // Generate dummy unique credentials
+            email = `${shop_id}@queue.com`;
+            phone = `000${Date.now().toString().slice(-7)}`; // Dummy phone
+            password = Math.random().toString(36).slice(-6); // 6 char random password
+            business_type = 'custom';
+            can_customize = false; // Default false for free instant tier
+        }
 
         // Check availability
         const check = await pool.query(
@@ -54,12 +72,18 @@ const createVendor = async (req, res) => {
         }
 
         const newVendor = await pool.query(
-            `INSERT INTO vendors (name, phone_number, email, password_hash, shop_id, business_type) 
-             VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, shop_id, name, email, phone_number, business_type`,
-            [name, phone, email, password, shop_id, business_type]
+            `INSERT INTO vendors (name, phone_number, email, password_hash, shop_id, business_type, can_customize) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, shop_id, name, email, phone_number, business_type, can_customize`,
+            [name, phone, email, password, shop_id, business_type, can_customize || false]
         );
 
-        res.status(201).json({ success: true, vendor: newVendor.rows[0] });
+        // If instant, return the generated password too so user can login
+        const vendorData = newVendor.rows[0];
+        if (is_instant) {
+            vendorData.generated_password = password;
+        }
+
+        res.status(201).json({ success: true, vendor: vendorData });
 
     } catch (error) {
         console.error("Create Vendor Error:", error);
@@ -69,7 +93,7 @@ const createVendor = async (req, res) => {
 
 const getAllVendors = async (req, res) => {
     try {
-        const result = await pool.query("SELECT id, name, shop_id, phone_number, email, is_paused, business_type FROM vendors ORDER BY created_at DESC");
+        const result = await pool.query("SELECT id, name, shop_id, phone_number, email, is_paused, business_type, can_customize FROM vendors ORDER BY created_at DESC");
         res.json({ success: true, vendors: result.rows });
     } catch (e) {
         console.error(e);

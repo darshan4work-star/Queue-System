@@ -4,11 +4,19 @@ import { socket } from '../socket';
 import styles from './vendor.module.css';
 import EditCustomerModal from './EditCustomerModal';
 import ViewCustomerModal from './ViewCustomerModal';
+import FormBuilder from '../admin/FormBuilder'; // Import FormBuilder
 
 export default function VendorPanel() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [shopId, setShopId] = useState('');
     const [vendorId, setVendorId] = useState('');
+    // Check if customization is allowed
+    // Note: Vendor object now includes can_customize from login response
+
+    // Helper to get current vendor data from state if needed, but we have isLoggedIn state.
+    // We should probably store the full vendor object or at least the flag in state upon login.
+    const [canCustomize, setCanCustomize] = useState(false);
+
     const [queueData, setQueueData] = useState({
         serving: '--',
         waitingCount: 0,
@@ -29,6 +37,10 @@ export default function VendorPanel() {
     // Modal State
     const [viewCustomer, setViewCustomer] = useState(null);
     const [editCustomer, setEditCustomer] = useState(null);
+
+    // Form Builder State
+    const [showFormBuilder, setShowFormBuilder] = useState(false);
+    const [currentFormFields, setCurrentFormFields] = useState([]);
 
 
     // Socket Setup
@@ -111,6 +123,7 @@ export default function VendorPanel() {
                 setIsLoggedIn(true);
                 setShopId(data.vendor.shop_id);
                 setVendorId(data.vendor.id);
+                setCanCustomize(data.vendor.can_customize); // Set permission
             } else {
                 alert(data.error || "Login Failed");
             }
@@ -219,6 +232,36 @@ export default function VendorPanel() {
         }
     };
 
+    // Form Builder Logic
+    const openFormBuilder = async () => {
+        try {
+            const res = await fetch(`http://localhost:5000/api/form/${vendorId}`);
+            const data = await res.json();
+            if (data.success) {
+                setCurrentFormFields(data.fields);
+                setShowFormBuilder(true);
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Failed to load form");
+        }
+    };
+
+    const saveForm = async (fields) => {
+        try {
+            await fetch('http://localhost:5000/api/form/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ vendor_id: vendorId, fields })
+            });
+            alert("Form Saved Successfully!");
+            setShowFormBuilder(false);
+        } catch (e) {
+            console.error(e);
+            alert("Failed to save form");
+        }
+    };
+
     if (!isLoggedIn) {
         return (
             <main className={styles.loginContainer}>
@@ -254,12 +297,52 @@ export default function VendorPanel() {
         );
     }
 
+    if (showFormBuilder) {
+        return (
+            <main className={styles.dashboard} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ width: '100%', maxWidth: '800px' }}>
+                    <FormBuilder
+                        vendorId={vendorId}
+                        initialFields={currentFormFields}
+                        onSave={saveForm}
+                        onCancel={() => setShowFormBuilder(false)}
+                    />
+                </div>
+            </main>
+        );
+    }
+
     return (
         <main className={styles.dashboard}>
             <header className={styles.header}>
-                <h2>{shopId} Dashboard</h2>
-                <div className={styles.statusBadge} style={{ backgroundColor: isConnected ? '#dcfce7' : '#fee2e2', color: isConnected ? '#166534' : '#991b1b' }}>
-                    {isConnected ? '● Connected' : '○ Disconnected'}
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <h2>{shopId} Dashboard</h2>
+                    {canCustomize && (
+                        <button
+                            onClick={openFormBuilder}
+                            style={{ background: 'none', border: 'none', color: '#4f46e5', cursor: 'pointer', textAlign: 'left', padding: 0, fontSize: '0.9rem', textDecoration: 'underline' }}
+                        >
+                            Customize Intake Form
+                        </button>
+                    )}
+                </div>
+
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <div className={styles.statusBadge} style={{ backgroundColor: isConnected ? '#dcfce7' : '#fee2e2', color: isConnected ? '#166534' : '#991b1b' }}>
+                        {isConnected ? '● Connected' : '○ Disconnected'}
+                    </div>
+                    {/* QR Code Popover Trigger */}
+                    <div style={{ position: 'relative', cursor: 'pointer' }} title="Scan to Book">
+                        <img
+                            src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${typeof window !== 'undefined' ? encodeURIComponent(`${window.location.origin}/book/${shopId}`) : ''}`}
+                            alt="QR"
+                            style={{ width: '40px', height: '40px', border: '1px solid #ccc', borderRadius: '4px' }}
+                            onClick={() => {
+                                const url = `${window.location.origin}/book/${shopId}`;
+                                window.open(`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}`, '_blank');
+                            }}
+                        />
+                    </div>
                 </div>
             </header>
 

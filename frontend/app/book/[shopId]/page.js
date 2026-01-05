@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import { socket } from '../../socket'; // Import socket
 import styles from './book.module.css';
 
 import DynamicFormRenderer from './DynamicFormRenderer';
@@ -12,10 +13,12 @@ export default function BookTokenPage() {
     const [generatedToken, setGeneratedToken] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [queueData, setQueueData] = useState({ serving: '--', waitingCount: 0 }); // Local state for queue
 
     // Form logic
     const [requiredForm, setRequiredForm] = useState(null); // fields array
 
+    // Fetch Vendor Data independently
     useEffect(() => {
         if (shopId) {
             fetch(`http://localhost:5000/api/public/${shopId}`)
@@ -26,6 +29,52 @@ export default function BookTokenPage() {
                 .catch(err => console.error(err));
         }
     }, [shopId]);
+
+    // Socket Logic for Realtime updates & Audio
+    useEffect(() => {
+        if (!socket.connected) {
+            socket.connect();
+        }
+        socket.emit('join_shop', shopId);
+
+        function onQueueUpdate(data) {
+            // Audio Alert Logic
+            // Note: generatedToken is a closure capture here. 
+            // To access latest generatedToken, we should stick to dependency array or use a ref.
+            // Using dependency array [shopId, generatedToken] causes re-subscription but is safer for closure.
+
+            // However, separating callback definition helps.
+            // We'll define logic inline.
+
+            setQueueData(prev => ({
+                ...prev,
+                serving: data.serving,
+                waitingCount: data.waitingCount || data.waiting || 0
+            }));
+        }
+
+        socket.on('queue_update', onQueueUpdate);
+
+        return () => {
+            socket.off('queue_update', onQueueUpdate);
+        };
+    }, [shopId]);
+
+    // Separate effect for Audio to avoid re-subscribing socket on every token change
+    // Monitor queueData.serving and match with generatedToken
+    useEffect(() => {
+        if (generatedToken && queueData.serving === generatedToken.token.token_number) {
+            try {
+                // Using a more distinct sound
+                const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+                audio.play().catch(e => console.log("Audio play failed", e));
+                if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+            } catch (e) {
+                console.error("Alert failed", e);
+            }
+        }
+    }, [queueData.serving, generatedToken]);
+
 
     const handleGenerate = async (e) => {
         e.preventDefault();
@@ -83,7 +132,8 @@ export default function BookTokenPage() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         shop_id: shopId,
-                        user_phone: phone
+                        user_phone: phone,
+                        skip_form: true
                     })
                 });
                 const data = await res.json();

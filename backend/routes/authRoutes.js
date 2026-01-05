@@ -4,6 +4,7 @@ const { vendorLogin, createVendor, getAllVendors } = require('../controllers/aut
 
 router.post('/vendor/login', vendorLogin);
 router.post('/admin/create-vendor', createVendor);
+router.post('/register', createVendor); // Public Signup Route
 router.get('/admin/vendors', getAllVendors);
 
 module.exports = router;

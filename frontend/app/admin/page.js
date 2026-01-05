@@ -169,6 +169,16 @@ export default function AdminPanel() {
                                     className={styles.input}
                                     required
                                 />
+                                <div className={styles.formGroup}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={newVendor.can_customize || false}
+                                            onChange={(e) => setNewVendor({ ...newVendor, can_customize: e.target.checked })}
+                                        />
+                                        Allow Form Customization
+                                    </label>
+                                </div>
                                 <button className={styles.createBtn} disabled={loading}>
                                     {loading ? 'Creating...' : 'Create Vendor'}
                                 </button>
@@ -201,6 +211,7 @@ export default function AdminPanel() {
                                                     <span style={{ fontSize: '0.8em' }}>
                                                         {vendor.email}<br />
                                                     </span>
+                                                    {vendor.can_customize && <span style={{ fontSize: '0.7em', background: '#dcfce7', color: '#166534', padding: '2px 4px', borderRadius: '4px' }}>Customizer</span>}
                                                 </td>
                                                 <td>
                                                     <div className={styles.urlActions}>

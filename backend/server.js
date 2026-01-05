@@ -38,6 +38,7 @@ const formRoutes = require('./routes/formRoutes');
 app.use('/api', queueRoutes);
 app.use('/api', authRoutes);
 app.use('/api/form', formRoutes);
+app.use('/api/contact', require('./routes/contactRoutes'));
 
 app.get('/', (req, res) => {
   res.send('Queue System API is running');
