@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './admin.module.css';
 
 import FormBuilder from './FormBuilder';
+import { API_URL } from '../../utils/config';
 
 export default function AdminPanel() {
     const [vendors, setVendors] = useState([]);
@@ -19,7 +20,7 @@ export default function AdminPanel() {
 
     const fetchVendors = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/admin/vendors');
+            const res = await fetch(`${API_URL}/api/admin/vendors`);
             const data = await res.json();
             if (data.success) {
                 setVendors(data.vendors);
@@ -33,7 +34,7 @@ export default function AdminPanel() {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await fetch('http://localhost:5000/api/admin/create-vendor', {
+            const res = await fetch(`${API_URL}/api/admin/create-vendor`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newVendor)
@@ -57,7 +58,7 @@ export default function AdminPanel() {
     // Form Builder Logic
     const openFormBuilder = async (vendor) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/form/${vendor.id}`);
+            const res = await fetch(`${API_URL}/api/form/${vendor.id}`);
             const data = await res.json();
             if (data.success) {
                 setCurrentFormFields(data.fields);
@@ -71,7 +72,7 @@ export default function AdminPanel() {
 
     const saveForm = async (fields) => {
         try {
-            await fetch('http://localhost:5000/api/form/save', {
+            await fetch(`${API_URL}/api/form/save`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ vendor_id: editingFormVendor.id, fields })

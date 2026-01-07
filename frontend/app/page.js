@@ -6,6 +6,7 @@ import Hero from '../components/Landing/Hero';
 import Features from '../components/Landing/Features';
 import Contact from '../components/Landing/Contact';
 import styles from './page.module.css';
+import { API_URL } from '../utils/config';
 
 export default function Home() {
   // Create Queue State
@@ -23,7 +24,7 @@ export default function Home() {
     e.preventDefault();
     setCreating(true);
     try {
-      const res = await fetch('http://localhost:5000/api/register', {
+      const res = await fetch(`${API_URL}/api/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

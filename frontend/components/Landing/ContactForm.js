@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Send, CheckCircle } from 'lucide-react';
+import { API_URL } from '../../utils/config';
 
 export default function ContactForm() {
     const [form, setForm] = useState({ name: '', email: '', message: '' });
@@ -12,7 +13,7 @@ export default function ContactForm() {
         setStatus('submitting');
 
         try {
-            const res = await fetch('http://localhost:5000/api/contact/submit', {
+            const res = await fetch(`${API_URL}/api/contact/submit`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form)

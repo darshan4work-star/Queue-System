@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { socket } from '../../socket'; // Import socket
 import styles from './book.module.css';
+import { API_URL } from '../../../utils/config';
 
 import DynamicFormRenderer from './DynamicFormRenderer';
 
@@ -21,7 +22,7 @@ export default function BookTokenPage() {
     // Fetch Vendor Data independently
     useEffect(() => {
         if (shopId) {
-            fetch(`http://localhost:5000/api/public/${shopId}`)
+            fetch(`${API_URL}/api/public/${shopId}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) setVendor(data.vendor);
@@ -82,7 +83,7 @@ export default function BookTokenPage() {
         setError('');
 
         try {
-            const res = await fetch('http://localhost:5000/api/webhook/missed-call', {
+            const res = await fetch(`${API_URL}/api/webhook/missed-call`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -114,7 +115,7 @@ export default function BookTokenPage() {
         setLoading(true);
         try {
             // 1. Submit Profile Data
-            const submitRes = await fetch('http://localhost:5000/api/form/submit', {
+            const submitRes = await fetch(`${API_URL}/api/form/submit`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -127,7 +128,7 @@ export default function BookTokenPage() {
 
             if (submitData.success) {
                 // 2. Retry Token Generation
-                const res = await fetch('http://localhost:5000/api/webhook/missed-call', {
+                const res = await fetch(`${API_URL}/api/webhook/missed-call`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

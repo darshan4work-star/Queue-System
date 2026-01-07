@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { socket } from '../../socket';
 import styles from './display.module.css';
+import { API_URL } from '../../../utils/config';
 
 export default function DisplayPage() {
     const { shopId } = useParams();
@@ -15,7 +16,7 @@ export default function DisplayPage() {
         if (!shopId) return;
 
         // Fetch Initial Data
-        fetch(`http://localhost:5000/api/public/${shopId}`)
+        fetch(`${API_URL}/api/public/${shopId}`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {

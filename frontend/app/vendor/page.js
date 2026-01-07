@@ -5,6 +5,7 @@ import styles from './vendor.module.css';
 import EditCustomerModal from './EditCustomerModal';
 import ViewCustomerModal from './ViewCustomerModal';
 import FormBuilder from '../admin/FormBuilder'; // Import FormBuilder
+import { API_URL } from '../../utils/config';
 
 export default function VendorPanel() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -89,7 +90,7 @@ export default function VendorPanel() {
     useEffect(() => {
         if (shopId) {
             // Fetch initial queue status to populate dashboard immediately
-            fetch(`http://localhost:5000/api/public/${shopId}`)
+            fetch(`${API_URL}/api/public/${shopId}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
@@ -112,7 +113,7 @@ export default function VendorPanel() {
         setLoading(true);
 
         try {
-            const res = await fetch('http://localhost:5000/api/vendor/login', {
+            const res = await fetch(`${API_URL}/api/vendor/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: email, password: password })
@@ -137,7 +138,7 @@ export default function VendorPanel() {
 
     const handleNext = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/next', {
+            const res = await fetch(`${API_URL}/api/next`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ vendor_id: vendorId, shop_id: shopId })
@@ -154,7 +155,7 @@ export default function VendorPanel() {
     const handleUpdateMessage = async () => {
         setUpdatingMsg(true);
         try {
-            const res = await fetch('http://localhost:5000/api/vendor/settings', {
+            const res = await fetch(`${API_URL}/api/vendor/settings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ vendor_id: vendorId, shop_id: shopId, custom_message: customMessage })
@@ -179,7 +180,7 @@ export default function VendorPanel() {
 
     const handleSaveCustomer = async (updatedCustomer) => {
         try {
-            const res = await fetch('http://localhost:5000/api/form/customer', {
+            const res = await fetch(`${API_URL}/api/form/customer`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -207,7 +208,7 @@ export default function VendorPanel() {
         if (!confirm(`Are you sure you want to cancel token ${token.token}?`)) return;
 
         try {
-            const res = await fetch('http://localhost:5000/api/cancel', {
+            const res = await fetch(`${API_URL}/api/cancel`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -235,7 +236,7 @@ export default function VendorPanel() {
     // Form Builder Logic
     const openFormBuilder = async () => {
         try {
-            const res = await fetch(`http://localhost:5000/api/form/${vendorId}`);
+            const res = await fetch(`${API_URL}/api/form/${vendorId}`);
             const data = await res.json();
             if (data.success) {
                 setCurrentFormFields(data.fields);
@@ -249,7 +250,7 @@ export default function VendorPanel() {
 
     const saveForm = async (fields) => {
         try {
-            await fetch('http://localhost:5000/api/form/save', {
+            await fetch(`${API_URL}/api/form/save`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ vendor_id: vendorId, fields })
