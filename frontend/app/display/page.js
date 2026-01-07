@@ -5,6 +5,14 @@ import { useSearchParams } from 'next/navigation';
 import styles from './display.module.css';
 
 export default function DisplayPanel() {
+    return (
+        <React.Suspense fallback={<div>Loading...</div>}>
+            <DisplayContent />
+        </React.Suspense>
+    );
+}
+
+function DisplayContent() {
     const [currentInfo, setCurrentInfo] = useState({
         serving: '--',
         waitingList: [],
